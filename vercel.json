@@ -1,19 +1,17 @@
+
+Copy
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "main.py",
-      "use": "@vercel/python",
-      "config": { 
-        "maxLambdaSize": "50mb",
-        "includeFiles": ["main.py", "requirements.txt"]
-      }
+  "builds": [{
+    "src": "main.py",
+    "use": "@vercel/python",
+    "config": {
+      "maxLambdaSize": "10mb",
+      "includeFiles": ["main.py", "requirements.txt"]
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "main.py"
-    }
-  ]
+  }],
+  "routes": [{
+    "src": "/(.*)", 
+    "dest": "main.py"
+  }]
 }
