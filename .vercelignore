@@ -1,10 +1,6 @@
-# Exclude these
 venv/
 __pycache__/
 *.bin
 *.h5
 *.pth
 *.pt
-*.safetensors
-.ipynb_checkpoints/
-.DS_Store
