@@ -21,18 +21,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize QA pipeline
+# Initialize QA pipeline with SMALLER model
 try:
     logger.info("Loading question-answering model...")
     qa_pipeline = pipeline(
         "question-answering",
-        model="deepset/roberta-base-squad2",
-        tokenizer="deepset/roberta-base-squad2"
+        model="mrm8488/bert-tiny-finetuned-squadv2",  # Only 17MB!
+        tokenizer="mrm8488/bert-tiny-finetuned-squadv2",
+        device=-1  # Force CPU usage
     )
     logger.info("Model loaded successfully!")
 except Exception as e:
     logger.error(f"Model loading failed: {str(e)}")
-    raise RuntimeError("Failed to load QA model")
+    qa_pipeline = None  # Allows health check to pass but API will return 503
 
 class AnswerResponse(BaseModel):
     answer: str
@@ -78,6 +79,9 @@ async def answer_question(
     question: str = Form(..., description="The assignment question"),
     file: UploadFile = File(None, description="Optional data file (CSV/Excel)")
 ):
+    if not qa_pipeline:
+        raise HTTPException(status_code=503, detail="Model not loaded - service unavailable")
+    
     try:
         if file:
             # Process file-based questions
@@ -101,7 +105,7 @@ async def answer_question(
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "model_loaded": True}
+    return {"status": "healthy", "model_loaded": qa_pipeline is not None}
 
 if __name__ == "__main__":
     import uvicorn
